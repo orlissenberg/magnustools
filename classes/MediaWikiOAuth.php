@@ -228,8 +228,6 @@ class MediaWikiOAuth
      */
     function sign_request($method, $url, $params = [])
     {
-        //		global $gConsumerSecret, $gTokenSecret;
-
         $parts = parse_url($url);
 
         // We need to normalize the endpoint URL
@@ -251,7 +249,7 @@ class MediaWikiOAuth
         unset($query['oauth_signature']);
         if ($query) {
             $query = array_combine(
-            // rawurlencode follows RFC 3986 since PHP 5.3
+                // rawurlencode follows RFC 3986 since PHP 5.3
                 array_map('rawurlencode', array_keys($query)),
                 array_map('rawurlencode', array_values($query))
             );
@@ -261,8 +259,9 @@ class MediaWikiOAuth
             }
         }
 
+        $hostToSign = env("SIGNATURE_SCHEME_AND_HOST", "$scheme://$host");
         $toSign = rawurlencode(strtoupper($method)) . '&' .
-            rawurlencode("$scheme://$host$path") . '&' .
+            rawurlencode("$hostToSign$path") . '&' .
             rawurlencode(join('&', $pairs));
         $key = rawurlencode($this->gConsumerSecret) . '&' . rawurlencode($this->gTokenSecret);
 
