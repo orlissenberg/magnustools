@@ -259,7 +259,7 @@ class MediaWikiOAuth
             }
         }
 
-        $hostToSign = env("SIGNATURE_SCHEME_AND_HOST", "$scheme://$host");
+        $hostToSign = env("WIKIBASE_SIGNATURE_SCHEME_AND_HOST", "$scheme://$host");
         $toSign = rawurlencode(strtoupper($method)) . '&' .
             rawurlencode("$hostToSign$path") . '&' .
             rawurlencode(join('&', $pairs));

@@ -31,6 +31,10 @@ function env(string $key, $default = null, $type = null)
 {
     $value = $_ENV[$key] ?? $default;
 
+    if ($value === "") {
+        $value = $default;
+    }
+
     switch ($type) {
         case 'bool':
             return filter_var($value, FILTER_VALIDATE_BOOLEAN);
