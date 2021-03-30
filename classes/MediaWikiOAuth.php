@@ -14,9 +14,9 @@ class MediaWikiOAuth
     var $debugging = false;
     var $language, $project;
     var $ini_file, $params;
-    var $mwOAuthUrl = 'https://www.mediawiki.org/w/index.php?title=Special:OAuth';
-    var $publicMwOAuthUrl; //if the mediawiki url given to the user is different from how this
-    //script may see it (e.g. if behind a proxy) set the user url here.
+    var $mwOAuthUrl; // 'https://www.mediawiki.org/w/index.php?title=Special:OAuth';
+    var $publicMwOAuthUrl; // if the mediawiki url given to the user is different from how this
+    // script may see it (e.g. if behind a proxy) set the user url here.
     var $mwOAuthIW = 'mw'; // Set this to the interwiki prefix for the OAuth central wiki.
     var $userinfo;
 
@@ -25,7 +25,7 @@ class MediaWikiOAuth
     var $delay_after_edit_s = 1;
     var $delay_after_upload_s = 1;
 
-    function __construct($t, $l = '', $p = '', $oauth_url = '')
+    function __construct($t, $l = '', $p = '')
     {
         if (is_array($t)) { // Bespoke override for third-party sites
             foreach ($t as $k => $v) {
@@ -51,14 +51,12 @@ class MediaWikiOAuth
         if (!isset($this->publicMwOAuthUrl)) {
             $this->publicMwOAuthUrl = $this->mwOAuthUrl;
         }
-        if ($oauth_url != '') {
-            $this->publicMwOAuthUrl = $oauth_url;
-        }
 
         $this->loadIniFile();
         $this->setupSession();
         $this->loadToken();
 
+        // !!
         if (isset($_GET['oauth_verifier']) && $_GET['oauth_verifier']) {
             $this->fetchAccessToken();
         }
@@ -181,24 +179,18 @@ class MediaWikiOAuth
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         $data = curl_exec($ch);
 
-        if (isset ($_REQUEST['test'])) {
-            print "<h1>LOGIN</h1><pre>";
-            print_r($data);
-            print "</pre></hr>";
-        }
-
         if (!$data) {
-            //			header( "HTTP/1.1 500 Internal Server Error" );
-            throw new Exception ('Curl error: ' . htmlspecialchars(curl_error($ch)));
+            // header( "HTTP/1.1 500 Internal Server Error" );
+            throw new Exception ('Curl error: ' . curl_error($ch));
         }
         curl_close($ch);
         $token = json_decode($data);
         if (is_object($token) && isset($token->error)) {
-            //			header( "HTTP/1.1 500 Internal Server Error" );
-            throw new Exception ('Error retrieving token2: ' . htmlspecialchars(json_encode($token)));
+            // header( "HTTP/1.1 500 Internal Server Error" );
+            throw new Exception ('Error retrieving token: ' . json_encode($token));
         }
         if (!is_object($token) || !isset($token->key) || !isset($token->secret)) {
-            //			header( "HTTP/1.1 500 Internal Server Error" );
+            // header( "HTTP/1.1 500 Internal Server Error" );
             throw new Exception ('Invalid response from token request');
         }
 
@@ -307,7 +299,7 @@ class MediaWikiOAuth
 
         if (!$data) {
             header("HTTP/1.1 500 Internal Server Error");
-            throw new Exception ('Curl error: ' . htmlspecialchars(curl_error($ch)));
+            throw new Exception ('Curl error: ' . curl_error($ch));
         }
         curl_close($ch);
         $token = json_decode($data);
@@ -317,7 +309,7 @@ class MediaWikiOAuth
         if (is_object($token) && isset($token->error)) {
             header("HTTP/1.1 500 Internal Server Error");
             $token->callback = $callback;
-            throw new Exception ('Error retrieving token: ' . htmlspecialchars(json_encode($token)));
+            throw new Exception ('Error retrieving token: ' . json_encode($token));
         }
         if (!is_object($token) || !isset($token->key) || !isset($token->secret)) {
             header("HTTP/1.1 500 Internal Server Error");
@@ -487,13 +479,6 @@ class MediaWikiOAuth
             'oauth_signature_method' => 'HMAC-SHA1',
         ];
 
-        if (isset ($_REQUEST['test'])) {
-            print "<pre>";
-            print "!!\n";
-            //			print_r ( $headerArr ) ;
-            print "</pre>";
-        }
-
         $to_sign = '';
         if ($mode == 'upload') {
             $to_sign = $headerArr;
@@ -535,19 +520,6 @@ class MediaWikiOAuth
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 
         $data = curl_exec($ch);
-
-        if (isset ($_REQUEST['test'])) {
-            print "<hr/><h3>API query</h3>";
-            //			print "URL:<pre>$url</pre>" ;
-            //			print "Header:<pre>" ; print_r ( $header ) ; print "</pre>" ;
-            print "Payload:<pre>";
-            print_r($post);
-            print "</pre>";
-            print "Result:<pre>";
-            print_r($data);
-            print "</pre>";
-            print "<hr/>";
-        }
 
         if (!$data) {
             return;

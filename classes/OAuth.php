@@ -164,7 +164,7 @@ class OAuth {
 		$token = json_decode( $data );
 		if ( is_object( $token ) && isset( $token->error ) ) {
 //			header( "HTTP/1.1 500 Internal Server Error" );
-			throw new \Exception ( 'Error retrieving token2: ' . htmlspecialchars( json_encode($token) ) ) ;
+			throw new \Exception ( 'Error retrieving token: ' . htmlspecialchars( json_encode($token) ) ) ;
 		}
 		if ( !is_object( $token ) || !isset( $token->key ) || !isset( $token->secret ) ) {
 //			header( "HTTP/1.1 500 Internal Server Error" );

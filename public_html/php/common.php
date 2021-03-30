@@ -38,6 +38,8 @@ function env(string $key, $default = null, $type = null)
     switch ($type) {
         case 'bool':
             return filter_var($value, FILTER_VALIDATE_BOOLEAN);
+        case 'int':
+            return filter_var($value, FILTER_VALIDATE_INT);
     }
 
     return $value;
